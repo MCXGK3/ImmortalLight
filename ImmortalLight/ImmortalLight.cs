@@ -26,6 +26,11 @@ namespace ImmortalLight
             Instance = this;
         }
 
+        public override string GetVersion()
+        {
+            return "m.x.1.0";
+        }
+
         public bool ToggleButtonInsideMenu => true;
 
         
