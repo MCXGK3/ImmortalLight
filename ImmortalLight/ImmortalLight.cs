@@ -6,6 +6,7 @@ using UnityEngine;
 using Satchel.Futils;
 using UObject = UnityEngine.Object;
 using Satchel;
+using Galaxy.Api;
 
 namespace ImmortalLight
 {
@@ -72,10 +73,10 @@ namespace ImmortalLight
         {
             switch (key)
             {
-                case "NAME_FINAL_BOSS": return "永恒之光";
-                case "ABSOLUTE_RADIANCE_SUPER": return "直面";
-                case "ABSOLUTE_RADIANCE_MAIN": return "永恒之光";
-                case "GODSEEKER_RADIANCE_STATUE": return "不会······消失······";
+                case "NAME_FINAL_BOSS": return OtherLanguage("永恒之光","ImmortalLight");
+                case "ABSOLUTE_RADIANCE_SUPER": return OtherLanguage("直面","Confront");
+                case "ABSOLUTE_RADIANCE_MAIN": return OtherLanguage("永恒之光", "ImmortalLight");
+                case "GODSEEKER_RADIANCE_STATUE": return OtherLanguage("不会······消失······","won't......disappear......");
                 case "GG_S_RADIANCE": return "永远不变，也永远变化；永远熄灭，也永远在燃烧";
                 default: return orig;
             }
@@ -85,48 +86,51 @@ namespace ImmortalLight
         {
             var menus= new List<IMenuMod.MenuEntry>();
             if (toggleButtonEntry != null) { menus.Add(toggleButtonEntry.Value); }
-            menus.Add(new IMenuMod.MenuEntry()
-            {
-                Name = "万神殿出现",
-                Description = "开启后，将在万神殿同样出现此mod",
-                Values = new string[]
+
+                menus.Add(new IMenuMod.MenuEntry()
+                {
+                    Name = OtherLanguage("万神殿出现","In Pantheon?"),
+                    Description = OtherLanguage("开启后，将在万神殿同样出现此mod","When enabled, ImmortalLight will appear in Pantheon."),
+                    Values = new string[]
                 {
                     Language.Language.Get("MOH_ON", "MainMenu"),
                     Language.Language.Get("MOH_OFF", "MainMenu")
                 },
-                Loader = () => setting.inPantheon ? 0 : 1,
-                Saver = i => setting.inPantheon = i == 0
+                    Loader = () => setting.inPantheon ? 0 : 1,
+                    Saver = i => setting.inPantheon = i == 0
 
-            }
+                }
                 );
-            menus.Add(new IMenuMod.MenuEntry()
-            {
-                Name = "梦语开关",
-                Description = "关闭后，辐光p3将不再出现梦语（原本梦语不受影响）",
-                Values = new string[]
+                menus.Add(new IMenuMod.MenuEntry()
                 {
+                    Name = OtherLanguage("梦语开关","Dream messages?"),
+                    Description = OtherLanguage("关闭后，辐光p3将不再出现梦语（原本梦语不受影响）","When enabled, there will be some dream messages in climb phase."),
+                    Values = new string[]
+                    {
                     Language.Language.Get("MOH_ON", "MainMenu"),
                     Language.Language.Get("MOH_OFF", "MainMenu")
-                },
-                Loader = () => setting.performance ? 0 : 1,
-                Saver = i => setting.performance = i == 0
+                    },
+                    Loader = () => setting.performance ? 0 : 1,
+                    Saver = i => setting.performance = i == 0
 
-            }
-                );
-            menus.Add(new IMenuMod.MenuEntry()
-            {
-                Name = "视野调整",
-                Description = "开启后将在p3和p4调整视野大小",
-                Values = new string[]
+                }
+                    );
+                menus.Add(new IMenuMod.MenuEntry()
                 {
+                    Name = OtherLanguage("视野调整","Zoom Change"),
+                    Description = OtherLanguage("开启后将在p3和p4调整视野大小","When enabled, the camera will zoom out in climb and final phase."),
+                    Values = new string[]
+                    {
                     Language.Language.Get("MOH_ON", "MainMenu"),
                     Language.Language.Get("MOH_OFF", "MainMenu")
-                },
-                Loader = () => setting.zoom ? 0 : 1,
-                Saver = i => setting.zoom = i == 0
+                    },
+                    Loader = () => setting.zoom ? 0 : 1,
+                    Saver = i => setting.zoom = i == 0
 
-            }
-                );
+                }
+                    );
+            
+
             return menus;
         }
         public void OnLoadGlobal(Setting s)
@@ -139,6 +143,14 @@ namespace ImmortalLight
             return setting;
         }
 
+        private string OtherLanguage(string chinese,string english)
+        {
+            if (Language.Language.CurrentLanguage() == Language.LanguageCode.ZH)
+            {
+                return chinese;
+            }
+            else return english;
+        }
         public void Unload()
         {
             ModHooks.LanguageGetHook -= ChangeLanguage;
