@@ -826,6 +826,7 @@ namespace ImmortalLight
         {
             float vel=0.4f;
             GameObject camera = GameCameras.instance.gameObject.FindGameObjectInChildren("CameraParent").FindGameObjectInChildren("tk2dCamera");
+            yield return new WaitForSeconds(1.5f);
             if (camera != null)
             {
                 zoomscale = camera.GetComponent<tk2dCamera>().ZoomFactor;
