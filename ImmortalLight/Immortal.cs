@@ -949,10 +949,6 @@ namespace ImmortalLight
 
             _con.InsertCustomAction("Scream", () => {
                 _com.GetVariable<FsmGameObject>("Attack Obj").Value.LocateMyFSM("Control").SetState("Reset");
-                Log(GameObject.Find("Abyss Pit"));
-                Log(GameObject.Find("Abyss Pit").LocateMyFSM("Ascend"));
-                Log(GameObject.Find("Abyss Pit").LocateMyFSM("Ascend").FsmVariables.FindFsmFloat("Hero Y"));
-                Log(GameObject.Find("Abyss Pit").LocateMyFSM("Ascend").FsmVariables.FindFsmFloat("Hero Y").Value);
                 GameObject.Find("Abyss Pit").LocateMyFSM("Ascend").FsmVariables.FindFsmFloat("Hero Y").Value = knight.transform.position.y;
                 GameObject.Find("Abyss Pit").LocateMyFSM("Ascend").SendEvent("ASCEND");
                 global::PlayerData.instance.SetHazardRespawn(new Vector3(58, 153, 0), true);
