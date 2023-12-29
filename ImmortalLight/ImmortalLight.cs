@@ -77,7 +77,7 @@ namespace ImmortalLight
                 case "ABSOLUTE_RADIANCE_SUPER": return OtherLanguage("直面","Confront");
                 case "ABSOLUTE_RADIANCE_MAIN": return OtherLanguage("永恒之光", "ImmortalLight");
                 case "GODSEEKER_RADIANCE_STATUE": return OtherLanguage("不会······消失······","won't......disappear......");
-                case "GG_S_RADIANCE": return "永远不变，也永远变化；永远熄灭，也永远在燃烧";
+                case "GG_S_RADIANCE": return OtherLanguage("永远不变，也永远变化；永远熄灭，也永远在燃烧", "changes never and changes forever; burns up and burns out");
                 default: return orig;
             }
         }
