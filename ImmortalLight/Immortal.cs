@@ -65,6 +65,8 @@ namespace ImmortalLight
         GameObject minuteHand;
         GameObject secondHand;
         AudioSource clock;
+        float zoomscale;
+        bool zoom = false;
 
         private void Awake()
         {
@@ -77,7 +79,6 @@ namespace ImmortalLight
 
             tip = LoadAudioClip("ImmortalLight.Resources.clock.wav");
             ModifyRadiance();
-
         }
 
 
@@ -87,10 +88,10 @@ namespace ImmortalLight
             aus = beam.GetAddComponent<AudioSource>();
             beam.SetActive(true);
             PlayMakerFSM beamFSM = beam.LocateMyFSM("Control");
-            aus.PlayOneShot(BeamAnticClip);
+            aus.PlayOneShot(BeamAnticClip, 0.5f*GameManager.instance.gameSettings.soundVolume/10f);
             beamFSM.SendEvent("ANTIC");
             yield return new WaitForSeconds(antic);
-            aus.PlayOneShot(BeamFireClip);
+            aus.PlayOneShot(BeamFireClip,0.5f*GameManager.instance.gameSettings.soundVolume/10f);
             beamFSM.SendEvent("FIRE");
             yield return new WaitForSeconds(fire);
             beamFSM.SendEvent("END");
@@ -694,7 +695,7 @@ namespace ImmortalLight
             {
                 AudioSource aus;
                 aus = a2beams[0].GetAddComponent<AudioSource>();
-                aus.PlayOneShot(BeamAnticClip);
+                aus.PlayOneShot(BeamAnticClip, 0.5f * GameManager.instance.gameSettings.soundVolume/10f);
                 foreach (var beam in a2beams)
                 {
                     beam.LocateMyFSM("Control").SendEvent("ANTIC");
@@ -704,7 +705,7 @@ namespace ImmortalLight
             {
                 AudioSource aus;
                 aus = a2beams[0].GetAddComponent<AudioSource>();
-                aus.PlayOneShot(BeamFireClip);
+                aus.PlayOneShot(BeamFireClip, 0.5f * GameManager.instance.gameSettings.soundVolume / 10f);
                 foreach (var beam in a2beams)
                 {
                     beam.LocateMyFSM("Control").SendEvent("FIRE");
@@ -719,7 +720,7 @@ namespace ImmortalLight
                     beam.SetActive(false);
                 }
             }, 0);
-
+            
             //横刺乱向
 
             _com.InsertCustomAction("Comb L 2", () =>
@@ -740,7 +741,6 @@ namespace ImmortalLight
                 _com.GetVariable<FsmGameObject>("Attack Obj").Value.LocateMyFSM("Control").GetAction<iTweenMoveBy>("Tween", 0).vector = new Vector3(0, 50, 0);
                 _com.GetVariable<FsmGameObject>("Attack Obj").Value.LocateMyFSM("Control").GetVariable<FsmInt>("Type").Value = r; //> 2 ? r + 3 : r;
             }, 3);
-
 
         }
 
@@ -821,6 +821,40 @@ namespace ImmortalLight
 
 
         }
+
+        private IEnumerator Zoomout()
+        {
+            float vel=0.4f;
+            GameObject camera = GameCameras.instance.gameObject.FindGameObjectInChildren("CameraParent").FindGameObjectInChildren("tk2dCamera");
+            if (camera != null)
+            {
+                zoomscale = camera.GetComponent<tk2dCamera>().ZoomFactor;
+                zoom = true;
+
+                while (camera.GetComponent<tk2dCamera>().ZoomFactor > 0.8)
+                {
+                    camera.GetComponent<tk2dCamera>().ZoomFactor -= vel * Time.deltaTime;
+                    yield return null;
+                }
+            }
+            yield break;
+        }
+        private IEnumerator Zoomin()
+        {
+            float vel = 0.4f;
+            GameObject camera = GameCameras.instance.gameObject.FindGameObjectInChildren("CameraParent").FindGameObjectInChildren("tk2dCamera");
+            if (camera != null)
+            {
+
+
+                while (camera.GetComponent<tk2dCamera>().ZoomFactor < 0.9)
+                {
+                    camera.GetComponent<tk2dCamera>().ZoomFactor += vel * Time.deltaTime;
+                    yield return null;
+                }
+            }
+            yield break;
+        }
         private void ModifyAcend()
         {
             gap = 0.5f;
@@ -849,7 +883,6 @@ namespace ImmortalLight
                     nails.LocateMyFSM("Control").RemoveAction("Antic", 2);
                 }, 2);
             }, 3);
-
 
             _con.RemoveAction("Plat Setup", 4);
             _con.RemoveAction("Plat Setup", 2);
@@ -898,6 +931,10 @@ namespace ImmortalLight
                 StartCoroutine(beamFire(hourHand, 5f, 9999f, 0));
                 StartCoroutine(beamFire(minuteHand, 5f, 9999f, 0));
                 StartCoroutine(beamFire(secondHand, 5f, 9999f, 0));
+                if (ImmortalLight.Instance.setting.zoom)
+                {
+                    StartCoroutine(Zoomout());
+                }
                 if (ImmortalLight.Instance.setting.performance)
                 {
                     StartCoroutine("Shown");
@@ -907,15 +944,18 @@ namespace ImmortalLight
 
             }, 2);
             _con.GetAction<Wait>("Plat Setup", 5).time = 0.5f;
-
             _con.GetAction<SendEventByName>("Ascend Cast", 1).sendEvent = "COMB TOP2";
 
 
             _con.InsertCustomAction("Scream", () => {
                 _com.GetVariable<FsmGameObject>("Attack Obj").Value.LocateMyFSM("Control").SetState("Reset");
+                Log(GameObject.Find("Abyss Pit"));
+                Log(GameObject.Find("Abyss Pit").LocateMyFSM("Ascend"));
+                Log(GameObject.Find("Abyss Pit").LocateMyFSM("Ascend").FsmVariables.FindFsmFloat("Hero Y"));
+                Log(GameObject.Find("Abyss Pit").LocateMyFSM("Ascend").FsmVariables.FindFsmFloat("Hero Y").Value);
                 GameObject.Find("Abyss Pit").LocateMyFSM("Ascend").FsmVariables.FindFsmFloat("Hero Y").Value = knight.transform.position.y;
                 GameObject.Find("Abyss Pit").LocateMyFSM("Ascend").SendEvent("ASCEND");
-                PlayerData.instance.SetHazardRespawn(new Vector3(58, 153, 0), true);
+                global::PlayerData.instance.SetHazardRespawn(new Vector3(58, 153, 0), true);
                 timeClock.SetActive(false);
                 final = true;
             }, 8);
@@ -934,6 +974,10 @@ namespace ImmortalLight
 
             _con.InsertCustomAction("Scream", () =>
             {
+                if (ImmortalLight.Instance.setting.zoom)
+                {
+                    StartCoroutine(Zoomin());
+                }
                 if (ImmortalLight.Instance.setting.performance)
                 {
                     StopCoroutine("Shown");
@@ -1032,7 +1076,7 @@ namespace ImmortalLight
                 if (bbgapnow >= bbgap)
                 {
                     second -= 6f;
-                    clock.PlayOneShot(tip, 2f);
+                    clock.PlayOneShot(tip, 1.5f*GameManager.instance.gameSettings.soundVolume/10f);
 
                     second %= 360f;
                     minute %= 360f;
@@ -1108,6 +1152,7 @@ namespace ImmortalLight
             foreach (var orb in orbList) { if (orb != null) { Destroy(orb); } }
             foreach (var orb in useorbs) { if (orb != null) { Destroy(orb); } }
             foreach(var beam in a2beams) { if (beam != null) { Destroy(beam); } }
+            if (zoom) { GameCameras.instance.gameObject.FindGameObjectInChildren("CameraParent").FindGameObjectInChildren("tk2dCamera").GetComponent<tk2dCamera>().ZoomFactor = zoomscale; }
         }
 
         public static AudioClip LoadAudioClip(string path)

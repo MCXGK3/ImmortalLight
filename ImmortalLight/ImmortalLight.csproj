@@ -338,6 +338,9 @@
     <None Include="Resources\.gitignore" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="WavLib" Version="1.0.1" />
+	  <PackageReference Include="WavLib" Version="1.0.1" >
+		  <IncludeAssets>all</IncludeAssets>
+	  </PackageReference>
+	  
   </ItemGroup>
 </Project>

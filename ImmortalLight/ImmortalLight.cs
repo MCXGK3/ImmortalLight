@@ -3,7 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Satchel.Futils;
 using UObject = UnityEngine.Object;
+using Satchel;
 
 namespace ImmortalLight
 {
@@ -52,9 +54,13 @@ namespace ImmortalLight
             {
                 if (self.FsmName == "Control" && self.gameObject.name == "Absolute Radiance")
                 {
+                    Log("Radiance");
+                    Log(BossSequenceController.IsInSequence);
                     if (setting.inPantheon || !BossSequenceController.IsInSequence)
                     {
+                        Log("Immortal");
                         self.gameObject.AddComponent<Immortal>();
+                        Log("End");
                     }
                 }
             }
@@ -104,6 +110,20 @@ namespace ImmortalLight
                 },
                 Loader = () => setting.performance ? 0 : 1,
                 Saver = i => setting.performance = i == 0
+
+            }
+                );
+            menus.Add(new IMenuMod.MenuEntry()
+            {
+                Name = "视野调整",
+                Description = "开启后将在p3和p4调整视野大小",
+                Values = new string[]
+                {
+                    Language.Language.Get("MOH_ON", "MainMenu"),
+                    Language.Language.Get("MOH_OFF", "MainMenu")
+                },
+                Loader = () => setting.zoom ? 0 : 1,
+                Saver = i => setting.zoom = i == 0
 
             }
                 );
